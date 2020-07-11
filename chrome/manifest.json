@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "group-ea-extension",
+  "version": "0.1",
+  "content_scripts": [
+    {
+      "matches": ["http://groupcondominios/docfinanceiro/"],
+      "js": ["index.js"]
+    }
+  ],
+  "background": {
+    "scripts": ["index.js"]
+  }
+}
