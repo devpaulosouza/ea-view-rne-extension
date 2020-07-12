@@ -8,10 +8,49 @@ const headers = new Headers();
 headers.append("Host", "groupcondominios");
 headers.append("Referer", "http://groupcondominios/docfinanceiro/");
 
+const tooltipStyles = `
+.tooltip-group {
+  display: inline-block;
+  position: relative;
+  margin: 0 auto;
+}
+
+[data-tooltip-id] {
+  width: 400px;
+  position: absolute;
+  display: none;
+  background: black;
+  color: white;
+  top: -60px;
+  margin-left: -15px;
+  border-radius: 5px;
+  padding: 15px;
+  z-index: 999;
+}
+[data-tooltip-id] > *{
+  color: white
+}
+`;
+
 const decodeHtmlCharCodes = (str) =>
   str.replace(/(&#(\d+);)/g, (match, capture, charCode) =>
     String.fromCharCode(charCode)
   );
+
+/*
+ * Credits https://stackoverflow.com/a/1349426/8753437
+ */
+const makeId = (length) => {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
 
 class RneFetcher {
   constructor() {
@@ -118,16 +157,15 @@ class RneFetcher {
 
     const page = await this._fetchRne(link);
 
-    let rneTitle =
-      page.querySelector(".ObjectTitle > script")?.textContent || "";
+    let title = page.querySelector(".ObjectTitle > script")?.textContent || "";
 
-    rneTitle = this._extractTitle(rneTitle);
+    title = this._extractTitle(title);
 
-    const rne = page
+    const description = page
       .querySelector(".ObjectDetailsNotes")
       ?.innerHTML?.replace("&lt;br/&gt;", "");
 
-    return { rneTitle, rne };
+    return { title, description, id: makeId(12) };
   }
 }
 
@@ -135,9 +173,19 @@ window.addEventListener("load", () => {
   const rneFetcher = new RneFetcher();
 
   setTimeout(() => {
+    let styleAlreadyAdded = false;
     setInterval(async () => {
       const eaDocument = document.getElementById("contentIFrame").contentWindow
         .document;
+
+      if (!styleAlreadyAdded) {
+        const styleSheet = eaDocument.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = tooltipStyles;
+        eaDocument.head.appendChild(styleSheet);
+      }
+
+      styleAlreadyAdded = true;
 
       let rneLinks = Array.from(
         eaDocument.querySelectorAll(
@@ -146,16 +194,47 @@ window.addEventListener("load", () => {
       );
       rneLinks.forEach((element) => element.classList.add("ea-group-rne"));
 
-      if (rneLinks.length > 5) {
-        rneLinks = rneLinks.slice(0, 5);
-      }
+      // if (rneLinks.length > 5) {
+      //   rneLinks = rneLinks.slice(0, 5);
+      // }
 
       if (rneLinks.length) {
         for (let element of rneLinks) {
           await rneFetcher.searchRneLinks(element);
           const rne = await rneFetcher.searchRne(element);
 
-          console.log(rne);
+          if (rne?.description) {
+            const popoverWrapper = document.createElement("div");
+
+            popoverWrapper.id = rne.id;
+            popoverWrapper.classList.add("tooltip-group");
+
+            element.parentNode.insertBefore(popoverWrapper, element);
+            popoverWrapper.appendChild(element);
+
+            /*
+             * Tooltip 's credits https://stackoverflow.com/a/42180786/8753437
+             */
+            const popoverHtml = new DOMParser().parseFromString(
+              `
+              <div data-tooltip-id="${rne.id}">
+                <h2>${rne.title}</h2><p>${rne.description}</p>
+              </div>
+              `,
+              "text/html"
+            );
+            const popoverNodeElement = popoverHtml.body.firstElementChild;
+
+            popoverWrapper.appendChild(popoverNodeElement);
+
+            popoverWrapper.addEventListener("mouseover", () => {
+              popoverNodeElement.style.display = "block";
+            });
+
+            popoverNodeElement.addEventListener("mouseout", () => {
+              popoverNodeElement.style.display = "none";
+            });
+          }
         }
       }
     }, 4000);

@@ -1,0 +1,21 @@
+.tooltip-group {
+  position: relative;
+  margin: 0 auto;
+}
+
+[data-tooltip-id] {
+  width: 100%;
+  position: absolute;
+  display: none;
+  background: black;
+  color: white;
+  top: -60px;
+  margin-left: -15px;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.ea-group-rne {
+  background-color: blue;
+  padding-left: 16px;
+}
