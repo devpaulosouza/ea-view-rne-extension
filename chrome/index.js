@@ -178,14 +178,10 @@ window.addEventListener("load", () => {
       const eaDocument = document.getElementById("contentIFrame").contentWindow
         .document;
 
-      if (!styleAlreadyAdded) {
-        const styleSheet = eaDocument.createElement("style");
-        styleSheet.type = "text/css";
-        styleSheet.innerText = tooltipStyles;
-        eaDocument.head.appendChild(styleSheet);
-      }
-
-      styleAlreadyAdded = true;
+      const styleSheet = eaDocument.createElement("style");
+      styleSheet.type = "text/css";
+      styleSheet.innerText = tooltipStyles;
+      eaDocument.head.appendChild(styleSheet);
 
       let rneLinks = Array.from(
         eaDocument.querySelectorAll(
