@@ -175,64 +175,66 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     let styleAlreadyAdded = false;
     setInterval(async () => {
-      const eaDocument = document.getElementById("contentIFrame").contentWindow
-        .document;
+      try {
+        const eaDocument = document.getElementById("contentIFrame")
+          .contentWindow.document;
 
-      const styleSheet = eaDocument.createElement("style");
-      styleSheet.type = "text/css";
-      styleSheet.innerText = tooltipStyles;
-      eaDocument.head.appendChild(styleSheet);
+        const styleSheet = eaDocument.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = tooltipStyles;
+        eaDocument.head.appendChild(styleSheet);
 
-      let rneLinks = Array.from(
-        eaDocument.querySelectorAll(
-          ".ObjectDetailsNotes > ol > li > a:not(.ea-group-rne)"
-        )
-      );
-      rneLinks.forEach((element) => element.classList.add("ea-group-rne"));
+        let rneLinks = Array.from(
+          eaDocument.querySelectorAll(
+            ".ObjectDetailsNotes > ol > li > a:not(.ea-group-rne)"
+          )
+        );
+        rneLinks.forEach((element) => element.classList.add("ea-group-rne"));
 
-      // if (rneLinks.length > 5) {
-      //   rneLinks = rneLinks.slice(0, 5);
-      // }
+        // if (rneLinks.length > 5) {
+        //   rneLinks = rneLinks.slice(0, 5);
+        // }
 
-      if (rneLinks.length) {
-        for (let element of rneLinks) {
-          await rneFetcher.searchRneLinks(element);
-          const rne = await rneFetcher.searchRne(element);
+        if (rneLinks.length) {
+          for (let element of rneLinks) {
+            await rneFetcher.searchRneLinks(element);
+            const rne = await rneFetcher.searchRne(element);
 
-          if (rne?.description) {
-            const popoverWrapper = document.createElement("div");
+            if (rne?.description) {
+              const popoverWrapper = document.createElement("div");
 
-            popoverWrapper.id = rne.id;
-            popoverWrapper.classList.add("tooltip-group");
+              popoverWrapper.id = rne.id;
+              popoverWrapper.classList.add("tooltip-group");
 
-            element.parentNode.insertBefore(popoverWrapper, element);
-            popoverWrapper.appendChild(element);
+              element.parentNode.insertBefore(popoverWrapper, element);
+              popoverWrapper.appendChild(element);
 
-            /*
-             * Tooltip 's credits https://stackoverflow.com/a/42180786/8753437
-             */
-            const popoverHtml = new DOMParser().parseFromString(
-              `
+              /*
+               * Tooltip 's credits https://stackoverflow.com/a/42180786/8753437
+               */
+              const popoverHtml = new DOMParser().parseFromString(
+                `
               <div data-tooltip-id="${rne.id}">
                 <h2>${rne.title}</h2><p>${rne.description}</p>
               </div>
               `,
-              "text/html"
-            );
-            const popoverNodeElement = popoverHtml.body.firstElementChild;
+                "text/html"
+              );
+              const popoverNodeElement = popoverHtml.body.firstElementChild;
 
-            popoverWrapper.appendChild(popoverNodeElement);
+              popoverWrapper.appendChild(popoverNodeElement);
 
-            popoverWrapper.addEventListener("mouseover", () => {
-              popoverNodeElement.style.display = "block";
-            });
+              popoverWrapper.addEventListener("mouseover", () => {
+                popoverNodeElement.style.display = "block";
+              });
 
-            popoverNodeElement.addEventListener("mouseout", () => {
-              popoverNodeElement.style.display = "none";
-            });
+              popoverNodeElement.addEventListener("mouseout", () => {
+                popoverNodeElement.style.display = "none";
+              });
+            }
           }
         }
-      }
+      } catch (err) {}
     }, 4000);
   }, 3000);
 });
