@@ -3,10 +3,12 @@
 //   Referer: "http://groupcondominios/docfinanceiro/",
 // };
 
+const { href, host } = window.location;
+
 const headers = new Headers();
 
-headers.append("Host", "groupcondominios");
-headers.append("Referer", "http://groupcondominios/docfinanceiro/");
+headers.append("Host", host);
+headers.append("Referer", href);
 
 const tooltipStyles = `
 .tooltip-group {
@@ -69,7 +71,7 @@ class RneFetcher {
 
     const path = this.uuidMap.get(key).get(uuid);
 
-    return `http://groupcondominios/docfinanceiro/EARoot/${path}`;
+    return `${href}/EARoot/${path}`;
   }
 
   _putInUuidMap(textUuid = "") {
@@ -98,12 +100,9 @@ class RneFetcher {
       return;
     }
 
-    const res = await fetch(
-      `http://groupcondominios/docfinanceiro/js/data/guidmaps/GuidMap${key}.xml`,
-      {
-        headers,
-      }
-    );
+    const res = await fetch(`${href}/js/data/guidmaps/GuidMap${key}.xml`, {
+      headers,
+    });
     const uuidMapList = ((await res.text()) || "").split("\n");
 
     return uuidMapList;
@@ -173,7 +172,6 @@ window.addEventListener("load", () => {
   const rneFetcher = new RneFetcher();
 
   setTimeout(() => {
-    let styleAlreadyAdded = false;
     setInterval(async () => {
       try {
         const eaDocument = document.getElementById("contentIFrame")
@@ -186,14 +184,10 @@ window.addEventListener("load", () => {
 
         let rneLinks = Array.from(
           eaDocument.querySelectorAll(
-            ".ObjectDetailsNotes > ol > li > a:not(.ea-group-rne)"
+            ".ObjectDetailsNotes > ol > li > a:not(.ea-view-rne)"
           )
         );
-        rneLinks.forEach((element) => element.classList.add("ea-group-rne"));
-
-        // if (rneLinks.length > 5) {
-        //   rneLinks = rneLinks.slice(0, 5);
-        // }
+        rneLinks.forEach((element) => element.classList.add("ea-view-rne"));
 
         if (rneLinks.length) {
           for (let element of rneLinks) {

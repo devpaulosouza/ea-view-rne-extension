@@ -4,9 +4,8 @@
   "version": "0.1",
   "content_scripts": [
     {
-      "matches": ["http://groupcondominios/docfinanceiro/"],
-      "js": ["index.js"],
-      "css": ["styles.css"]
+      "matches": ["http://*/*"],
+      "js": ["index.js"]
     }
   ],
   "background": {
