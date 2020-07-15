@@ -1,8 +1,3 @@
-// const headers = {
-//   Host: "groupcondominios",
-//   Referer: "http://groupcondominios/docfinanceiro/",
-// };
-
 const { href, host } = window.location;
 
 const headers = new Headers();
@@ -101,7 +96,7 @@ class RneFetcher {
     const key = uuid.slice(0, 2).toLowerCase();
 
     if (this.uuidMap.has(key)) {
-      return;
+      return [];
     }
 
     const res = await fetch(`${href}/js/data/guidmaps/GuidMap${key}.xml`, {
