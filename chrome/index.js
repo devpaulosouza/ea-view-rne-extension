@@ -34,11 +34,6 @@ const tooltipStyles = `
 }
 `;
 
-const decodeHtmlCharCodes = (str) =>
-  str.replace(/(&#(\d+);)/g, (match, capture, charCode) =>
-    String.fromCharCode(charCode)
-  );
-
 /*
  * Credits https://stackoverflow.com/a/1349426/8753437
  */
@@ -52,6 +47,15 @@ const makeId = (length) => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+};
+
+/*
+ * "Creative" solution https://stackoverflow.com/a/42182294/8753437
+ */
+const decodeHtml = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
 };
 
 class RneFetcher {
@@ -160,11 +164,9 @@ class RneFetcher {
 
     title = this._extractTitle(title);
 
-    const description = page
-      .querySelector(".ObjectDetailsNotes")
-      ?.innerHTML?.replace("&lt;br/&gt;", "");
+    const description = page.querySelector(".ObjectDetailsNotes")?.innerHTML;
 
-    return { title, description, id: makeId(12) };
+    return { title, description, id: makeId(12), uuid };
   }
 }
 
@@ -209,12 +211,23 @@ window.addEventListener("load", () => {
               const popoverHtml = new DOMParser().parseFromString(
                 `
               <div data-tooltip-id="${rne.id}">
-                <h2>${rne.title}</h2><p>${rne.description}</p>
+                <h2>${rne.title}</h2><p></p>
+                <br />
+                <a href="javascript:top.guidLink('${rne.uuid}')">Mostrar na página</a>
               </div>
               `,
                 "text/html"
               );
               const popoverNodeElement = popoverHtml.body.firstElementChild;
+
+              const descriptionNodeElement = new DOMParser().parseFromString(
+                `<div>${decodeHtml(rne.description)}</div>`,
+                "text/html"
+              ).body.firstElementChild;
+
+              popoverHtml
+                .querySelector("p")
+                .appendChild(descriptionNodeElement);
 
               popoverWrapper.appendChild(popoverNodeElement);
 
@@ -228,7 +241,9 @@ window.addEventListener("load", () => {
             }
           }
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error(err);
+      }
     }, 4000);
   }, 3000);
 });
