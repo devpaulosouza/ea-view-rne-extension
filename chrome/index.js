@@ -236,9 +236,7 @@ window.addEventListener("load", () => {
             }
           }
         }
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (err) {}
     }, 4000);
   }, 3000);
 });
