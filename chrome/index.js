@@ -213,7 +213,7 @@ window.addEventListener("load", () => {
               <div data-tooltip-id="${rne.id}">
                 <h2>${rne.title}</h2><p></p>
                 <br />
-                <a href="javascript:top.guidLink('${rne.uuid}')">Mostrar na página</a>
+                <a href="javascript:top.guidLink('{${rne.uuid}}')">Mostrar na página</a>
               </div>
               `,
                 "text/html"
